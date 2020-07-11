@@ -1,0 +1,70 @@
+﻿@model Unflixx.ViewModels.NewCustomerViewModel
+@{
+    /**/
+
+    ViewBag.Title = "New";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Customer</h2>
+
+
+@*Below is similar to <form></form>..The 'using' tag is used to put curly braces to dispose the tag ie. similar to </form>*@
+@using (Html.BeginForm("Save", "Customers"))
+{
+    @Html.ValidationSummary(true, "Fix the error to proceed")
+
+    <div class="form-group">
+
+        @*below is similar to <label></label>*@
+        @Html.LabelFor(m => m.Customer.Name)
+
+        @*Below is similar to <input> but advantage of this is Input is auto validated for input errors unlike raw html*@
+        @Html.TextBoxFor(m => m.Customer.Name, new { @class = "form-control" }) @*Form-Control is a bootstrap class to give modern look to input*@
+        @Html.ValidationMessageFor(m => m.Customer.Name) @*This is the 3rd part of validation to show the user about his mistake*@
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Customer.MembershipTypeId)
+        @Html.DropDownListFor(m => m.Customer.MembershipTypeId, new SelectList(Model.MembershipTypes, "Id", "Name"), "Select Membership Type", new { @class = "form-control" }) @*Form-Control is a bootstrap class to give modern look to input*@
+        @Html.ValidationMessageFor(m => m.Customer.MembershipTypeId)
+    </div>
+
+
+    <div class="form-group">
+        <label>Date of Birth</label>
+        @Html.TextBoxFor(m => m.Customer.Birthdate, "{0:d MMM yyyy}", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Customer.Birthdate)
+    </div>
+
+
+
+    @*The Checkbox is not so friendly with above kind of labels*@
+    <div class="checkbox">
+        <label>
+            @Html.CheckBoxFor(m => m.Customer.IsSubscribedToNewsletter)
+            Subscribe to NewsLetter?
+        </label>
+    </div>
+
+    @Html.HiddenFor(m => m.Customer.Id)
+    @Html.AntiForgeryToken() @*This is a helper field to avoid attacks from hackers (CSRF attacks) where he cannot manipulate POST request from his server*@
+
+    <button type="submit" class="btn btn-primary">Save</button>
+}
+
+@*The below is used to enable client-side validation*@
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval") @*The render is done from bundlesconfig.cs*@
+
+    }
+
+@*The DataAnnotations we added work for both server side and client side and we only need to enable client side validation by above code as it is not done by default
+
+But there is a down side to this as this validation is only for standard validations like required and string length 255 etc
+
+If we have our own validation like the user cannot be below 18 yrs old then it needs some extra jquery code
+
+But it is a better choice to have the custom validation on the server side so as to reduce the code*@

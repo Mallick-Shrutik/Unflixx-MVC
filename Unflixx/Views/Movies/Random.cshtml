@@ -1,0 +1,32 @@
+﻿@model Unflixx.ViewModels.RandomMovieViewModel
+@{
+    ViewBag.Title = "Random";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@*
+    Below is the implementation of razor view
+    razor view is used to write html in c# and c# in html
+*@
+
+@{
+    var className = Model.Customers.Count > 0 ? "popular" : null;
+}
+
+<h2 class="@className">@Model.Movie.Name</h2> @* The className is rendered and is dynamic here*@
+
+@if (Model.Customers.Count == 0)
+{
+    <p>No one has rented this movie</p>
+}
+else
+{
+    <ul>
+        @foreach (var customer in Model.Customers)
+        {
+            <li>@customer.Name</li>
+        }
+    </ul>
+}
+

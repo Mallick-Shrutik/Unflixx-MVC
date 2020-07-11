@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Unflixx.Models.Customer>
+@*
+    Note: I've set the model for this view to IEnumerable<Customer>.
+    This is a simple interface implemented by the list class. Since
+    in this view we only want to iterate over this list, and we don't
+    need any of the operations in the List class (eg Add, Remove, etc),
+    it's better to use the IEnumerable interface, which allows use to
+    iterate over the list. If in the future, we replace the List with a
+    different data structure, as long as it is enumerable, our view code
+    will remain unchanged.
+*@
+
+@{
+    ViewBag.Title = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Customers</h2>
+<table id="customers" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Customer</th>
+            
+            <th>Membership Type</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @*The following renders data in server but as we use api to render data in client site we no more use this*@
+        @*@@foreach (var customer in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(customer.Name, "Edit", "Customers", new { id = customer.Id }, null)</td>
+                    <td>@customer.MembershipType.DiscountRate%</td>
+                    <td>@customer.MembershipType.Name</td>
+                    <td>
+                        <button data-customer-id="@customer.Id" class="btn-link js-delete">Delete</button>
+                    </td>
+                </tr>
+            }*@
+
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            //datatables is a jquery plugin to add sorting,filtering,pagination
+            //but this return view generated in the server directly to the client
+            //FOR THIS WE NEED TO USE DATATBLES WITH AJAX
+            let table = $("#customers").DataTable({ //datatables using ajax
+                ajax: {
+                    url: "/api/customers",
+                    dataSrc : ""
+                },
+                columns: [
+                    {
+                        data: "name",
+                        render: function (data, type, customer) {
+                            return "<a href='/customers/edit/" + customer.id + "'>" + customer.name + "</a>";
+                        }
+                    },
+                    {
+                        data : "membershipType.name" //this is for membership type but api does not have any function with membership types
+                    },
+                    {
+                        data: "id",
+                        render: function (data) {
+                            return "<button class='btn-link js-delete' data-customer-id=" + data + ">Delete</button>";
+                        }
+                    }
+
+                ]
+                    
+            }); 
+
+
+            $("#customers").on("click", ".js-delete" , function () {
+                let button = $(this);
+                bootbox.confirm("Are you sure to delete?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/customers/" + button.attr("data-customer-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw(); //row,remove,draw methods are a part of datatable api
+                            }
+                        })
+
+                    }
+                });
+                
+            })
+
+        });
+        
+        
+    </script>
+    
+    }
